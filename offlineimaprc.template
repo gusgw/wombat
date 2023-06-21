@@ -1,0 +1,40 @@
+[general]
+accounts = {{ accounts|join(', ', attribute='name')}}
+
+{% for acct in accounts %}
+
+[Account {{ acct.name }}]
+localrepository = {{ acct.name }}-local
+remoterepository = {{ acct.name }}-remote
+
+# Interval for full refresh in minutes
+autorefresh = 1
+
+# Number of quick refreshes between each full refresh
+quick = 10
+
+[Repository {{ acct.name }}-local]
+type = Maildir
+localfolders = {{ path }}/{{ acct.name }}/
+
+# Delete remote messages that were deleted locally
+sync_deletes = no
+
+[Repository {{ acct.name }}-remote]
+type = IMAP
+ssl = no
+remoteport = {{ remoteport }}
+remotehost = {{ remotehost }}
+remoteuser = {{ acct.remoteuser }}
+remotepass = {{ password }}
+
+keepalive = 60
+holdconnectionopen = yes
+
+# Delete local messages that were deleted on the remote server
+expunge = yes
+
+# Sync only these folders
+folderfilter = lambda foldername: foldername in ['{{ folders|join("', '") }}']
+
+{% endfor %}
